@@ -5,7 +5,12 @@ COPY package.json .
 COPY yarn.lock .
 RUN yarn install
 COPY . .
-RUN yarn build
+
+FROM builder as dev
+CMD yarn start
+
+FROM builder as prod
+CMD yarn build
 
 FROM nginx:1.23
 WORKDIR /usr/share/nginx/html
