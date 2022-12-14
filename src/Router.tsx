@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Clients from './features/Clients/List'
 import Home from './features/Home'
 
-
 const Router: React.FC = () => {
   return (
     <BrowserRouter>
@@ -20,6 +19,5 @@ const Router: React.FC = () => {
     </BrowserRouter>
   )
 }
-
 
 export default Router
