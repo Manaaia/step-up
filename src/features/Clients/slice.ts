@@ -10,12 +10,12 @@ const clientSlice = createSlice({
   name: 'clients',
   initialState,
   reducers: {
-    clientAdded(state, action) {
+    addClient(state, action) {
       state.push(action.payload)
     }
   }
 })
 
-export const { clientAdded } = clientSlice.actions
+export const { addClient } = clientSlice.actions
 
 export default clientSlice.reducer

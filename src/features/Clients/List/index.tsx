@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import FlashMessage from "../../../ui/FlashMessage"
 import { useSelector, useDispatch } from "react-redux"
-import { clientAdded } from "../slice"
+import { addClient } from "../slice"
 
 type Client = {
   id: number
@@ -59,7 +59,7 @@ const List = ({ ...restProps }) => {
 
   const handleClick = () => {
     dispatch(
-      clientAdded({
+      addClient({
         id: numberOfClients + 1,
         name: name,
         surname: surname
