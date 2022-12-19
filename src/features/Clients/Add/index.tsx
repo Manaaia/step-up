@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import FlashMessage from "../../../ui/FlashMessage"
 import { addClient } from "../slice"
-import { Link, redirect, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 const AddClient = ({ ...restProps }) => {
   const clients = useSelector((state: any) => state.clients)
@@ -56,11 +56,7 @@ const AddClient = ({ ...restProps }) => {
         <label htmlFor="surname">Surname: </label>
         <input name="surname" type="text" onChange={ handleSurnameChange } value={ surname } />
         <button onClick={ handleClick }>Add</button>
-        <Link
-          to="/clients"
-        >
-          <button>Back</button>
-        </Link>
+        <Link to="/clients"><button>Back</button></Link>
       </div>
     </div>
   )
