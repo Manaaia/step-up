@@ -12,10 +12,14 @@ const clientSlice = createSlice({
   reducers: {
     addClient(state, action) {
       state.push(action.payload)
+    },
+    deleteClient(state, action) {
+      state = state.filter(client => client.id !== action.payload)
+      return state
     }
   }
 })
 
-export const { addClient } = clientSlice.actions
+export const { addClient, deleteClient } = clientSlice.actions
 
 export default clientSlice.reducer
