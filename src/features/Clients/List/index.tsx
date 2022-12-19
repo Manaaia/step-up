@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import FlashMessage from "../../../ui/FlashMessage"
 import { useSelector, useDispatch } from "react-redux"
-import { addClient } from "../slice"
+import { addClient, deleteClient } from "../slice"
 
 type Client = {
   id: number
@@ -12,16 +12,20 @@ type Client = {
 }
 
 type ClientListProps = {
-  displayClients: Client[]
+  displayClients: Client[],
+  dispatch: any
 }
 
-const ClientList: React.FC<ClientListProps> = ({ displayClients }) => {
+const ClientList: React.FC<ClientListProps> = ({ displayClients, dispatch }) => {
   return (
     <div>
       <h2>Client list</h2>
       <ul>
         { displayClients.map((client: Client) => (
-          <li key={ client.id }>{ client.name } { client.surname }</li>
+            <li key={ client.id }>
+              { client.name } { client.surname }
+              <button onClick={ () => dispatch(deleteClient(client.id)) }>Delete</button>
+            </li>
         )) }
       </ul>
     </div>
@@ -107,7 +111,7 @@ const List = ({ ...restProps }) => {
         <button onClick={ () => setIsOpen(!isOpen) }>Toggle Filter</button>
       </FilterComponent>
       <FlashMessage shouldShow={ shouldShow } message="Client added" />
-      <ClientList displayClients={ displayClients } />
+      <ClientList displayClients={ displayClients } dispatch={ dispatch } />
       <hr />
       <div className="add-client-container">
         <h2>Add a new client</h2>
