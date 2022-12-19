@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import FlashMessage from "../../../ui/FlashMessage"
 import { useSelector, useDispatch } from "react-redux"
-import { addClient, deleteClient } from "../slice"
+import { deleteClient } from "../slice"
+import AddClient from "../Add"
 
 type Client = {
   id: number
@@ -36,10 +36,6 @@ const List = ({ ...restProps }) => {
   const clients = useSelector((state: any) => state.clients)
   const dispatch = useDispatch()
   const [isOpen, setIsOpen] = useState(false)
-  const [shouldShow, setShouldShow] = useState(false)
-  const [numberOfClients, setIncrement] = useState(clients.length)
-  const [name, setName] = useState('')
-  const [surname, setSurname] = useState('')
   const [displayClients, setDisplayClients] = useState(clients)
   const [filter, setFilter] = useState('')
 
@@ -47,39 +43,6 @@ const List = ({ ...restProps }) => {
     setDisplayClients(clients)
     filterClients(clients, filter)
   }, [clients])
-
-  const reinitializeForm = () => {
-    setName('')
-    setSurname('')
-  }
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value)
-  }
-
-  const handleSurnameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSurname(e.target.value)
-  }
-
-  const handleClick = () => {
-    dispatch(
-      addClient({
-        id: numberOfClients + 1,
-        name: name,
-        surname: surname
-      })
-    )
-
-    setIncrement(numberOfClients + 1)
-
-    reinitializeForm()
-
-    setShouldShow(true)
-
-    setTimeout(() => {
-      setShouldShow(false)
-    }, 2000)
-  }
 
   const filterClients = (clients: Client[], filter: string) => {
     setDisplayClients(clients.filter((client: Client) => {
@@ -96,7 +59,7 @@ const List = ({ ...restProps }) => {
   }
 
   return (
-    <div { ...restProps }>
+    <div>
       <h1>Clients</h1>
       <FilterComponent key="component">
         <div>
@@ -110,19 +73,11 @@ const List = ({ ...restProps }) => {
         </div>
         <button onClick={ () => setIsOpen(!isOpen) }>Toggle Filter</button>
       </FilterComponent>
-      <FlashMessage shouldShow={ shouldShow } message="Client added" />
       <ClientList displayClients={ displayClients } dispatch={ dispatch } />
       <hr />
-      <div className="add-client-container">
-        <h2>Add a new client</h2>
-        <label htmlFor="name">Name: </label>
-        <input name="name" type="text" onChange={ handleNameChange } value={ name }/>
-        <label htmlFor="surname">Surname: </label>
-        <input name="surname" type="text" onChange={ handleSurnameChange } value={ surname } />
-        <button onClick={ handleClick }>Add</button>
-      </div>
+      <AddClient { ...restProps } />
       <hr />
-      <p>Number of clients of the list: { numberOfClients }</p>
+      <p>Number of clients in the list: { clients.length }</p>
       <Link
         className="App-link"
         to="/"
@@ -141,14 +96,4 @@ const FilterComponent = styled.div`
   padding: 10px;
 `
 
-export default styled(List)`
-  .add-client-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-
-    button {
-      margin-top: 10px;
-    }
-  }
-`
+export default List
