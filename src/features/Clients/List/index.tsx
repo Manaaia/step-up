@@ -32,7 +32,7 @@ const ClientList: React.FC<ClientListProps> = ({ displayClients, dispatch }) => 
   )
 }
 
-const List = ({ ...restProps }) => {
+const List = () => {
   const clients = useSelector((state: any) => state.clients)
   const dispatch = useDispatch()
   const [isOpen, setIsOpen] = useState(false)
@@ -74,14 +74,12 @@ const List = ({ ...restProps }) => {
         <button onClick={ () => setIsOpen(!isOpen) }>Toggle Filter</button>
       </FilterComponent>
       <ClientList displayClients={ displayClients } dispatch={ dispatch } />
-      <hr />
-      <AddClient { ...restProps } />
+      <Link className="App-link" to='add'>
+        <button>Add a new client</button>
+      </Link>
       <hr />
       <p>Number of clients in the list: { clients.length }</p>
-      <Link
-        className="App-link"
-        to="/"
-      >
+      <Link className="App-link" to="/">
         Go back home
       </Link>
     </div>
