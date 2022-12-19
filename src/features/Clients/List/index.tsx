@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom"
 import React, { useEffect, useState } from "react"
-import ClientsStore from "../clients.json"
 import styled from "styled-components"
 import FlashMessage from "../../../ui/FlashMessage"
+import { useSelector, useDispatch } from "react-redux"
+import { clientAdded } from "../slice"
 
 type Client = {
   id: number
@@ -28,12 +29,13 @@ const ClientList: React.FC<ClientListProps> = ({ displayClients }) => {
 }
 
 const List = ({ ...restProps }) => {
+  const clients = useSelector((state: any) => state.clients)
+  const dispatch = useDispatch()
   const [isOpen, setIsOpen] = useState(false)
   const [shouldShow, setShouldShow] = useState(false)
-  const [numberOfClients, setIncrement] = useState(ClientsStore.length)
+  const [numberOfClients, setIncrement] = useState(clients.length)
   const [name, setName] = useState('')
   const [surname, setSurname] = useState('')
-  const [clients, setClients] = useState(ClientsStore)
   const [displayClients, setDisplayClients] = useState(clients)
   const [filter, setFilter] = useState('')
 
@@ -56,7 +58,13 @@ const List = ({ ...restProps }) => {
   }
 
   const handleClick = () => {
-    setClients([...clients, { id: numberOfClients + 1, name: name, surname: surname }])
+    dispatch(
+      clientAdded({
+        id: numberOfClients + 1,
+        name: name,
+        surname: surname
+      })
+    )
 
     setIncrement(numberOfClients + 1)
 
