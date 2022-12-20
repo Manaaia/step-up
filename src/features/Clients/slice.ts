@@ -16,10 +16,19 @@ const clientSlice = createSlice({
     deleteClient(state, action) {
       state = state.filter(client => client.id !== action.payload)
       return state
+    },
+    updateClient(state, action) {
+      state = state.map(client => {
+        if (client.id === action.payload.id) {
+          return action.payload
+        }
+        return client
+      })
+      return state
     }
   }
 })
 
-export const { addClient, deleteClient } = clientSlice.actions
+export const { addClient, deleteClient, updateClient } = clientSlice.actions
 
 export default clientSlice.reducer
