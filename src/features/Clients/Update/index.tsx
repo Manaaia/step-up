@@ -8,8 +8,8 @@ import styled from "styled-components"
 const Client = ({ ...restProps }) => {
   const clients = useSelector((state: any) => state.clients)
   const dispatch = useDispatch()
-  const params = useParams()
-  const client = clients.find((client: any) => client.id === parseInt(params.id))
+  const { clientId } = useParams()
+  const client = clients.find((client: any) => client.id === Number(clientId))
   const [name, setName] = useState(client.name)
   const [surname, setSurname] = useState(client.surname)
   const [shouldShow, setShouldShow] = useState(false)

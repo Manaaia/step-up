@@ -22,8 +22,7 @@ const Router: React.FC = () => {
           element={ <AddClient /> }
         />
         <Route
-          loader={({ params }) => ({ clientId: params.clientId})}
-          path="clients/:id"
+          path="clients/:clientId"
           element={ <UpdateClient /> }
         />
       </Routes>
