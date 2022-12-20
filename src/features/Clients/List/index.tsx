@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import FlashMessage from "../../../ui/FlashMessage"
 import { useSelector, useDispatch } from "react-redux"
-import { addClient, deleteClient } from "../slice"
+import { deleteClient } from "../slice"
 
 type Client = {
   id: number
@@ -11,24 +10,18 @@ type Client = {
   surname: string
 }
 
-type ClientListProps = {
-  displayClients: Client[],
-  dispatch: any
-}
-
-const ClientList: React.FC<ClientListProps> = ({ displayClients, dispatch }) => {
+const ClientItem: React.FC<{ client: Client, dispatch: any }> = ({ client, dispatch }) => {
   return (
-    <div>
-      <h2>Client list</h2>
-      <ul>
-        { displayClients.map((client: Client) => (
-            <li key={ client.id }>
-              { client.name } { client.surname }
-              <button onClick={ () => dispatch(deleteClient(client.id)) }>Delete</button>
-            </li>
-        )) }
-      </ul>
-    </div>
+    <article className="card" key={ client.id }>
+      <header>{ client.name } { client.surname }</header>
+      <button
+        title="Delete"
+        className="delete-button"
+        onClick={ () => dispatch(deleteClient(client.id)) }
+      >
+        x
+      </button>
+    </article>
   )
 }
 
@@ -36,10 +29,6 @@ const List = ({ ...restProps }) => {
   const clients = useSelector((state: any) => state.clients)
   const dispatch = useDispatch()
   const [isOpen, setIsOpen] = useState(false)
-  const [shouldShow, setShouldShow] = useState(false)
-  const [numberOfClients, setIncrement] = useState(clients.length)
-  const [name, setName] = useState('')
-  const [surname, setSurname] = useState('')
   const [displayClients, setDisplayClients] = useState(clients)
   const [filter, setFilter] = useState('')
 
@@ -47,39 +36,6 @@ const List = ({ ...restProps }) => {
     setDisplayClients(clients)
     filterClients(clients, filter)
   }, [clients])
-
-  const reinitializeForm = () => {
-    setName('')
-    setSurname('')
-  }
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value)
-  }
-
-  const handleSurnameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSurname(e.target.value)
-  }
-
-  const handleClick = () => {
-    dispatch(
-      addClient({
-        id: numberOfClients + 1,
-        name: name,
-        surname: surname
-      })
-    )
-
-    setIncrement(numberOfClients + 1)
-
-    reinitializeForm()
-
-    setShouldShow(true)
-
-    setTimeout(() => {
-      setShouldShow(false)
-    }, 2000)
-  }
 
   const filterClients = (clients: Client[], filter: string) => {
     setDisplayClients(clients.filter((client: Client) => {
@@ -97,7 +53,11 @@ const List = ({ ...restProps }) => {
 
   return (
     <div { ...restProps }>
-      <h1>Clients</h1>
+      <Link className="App-link" to="/">Go back home</Link>
+      <div className="header">
+        <h1>Client list</h1>
+        <Link className="App-link" to='add'><button title="Add a new client" className="add-button">+</button></Link>
+      </div>
       <FilterComponent key="component">
         <div>
           <p>Filter</p>
@@ -110,25 +70,13 @@ const List = ({ ...restProps }) => {
         </div>
         <button onClick={ () => setIsOpen(!isOpen) }>Toggle Filter</button>
       </FilterComponent>
-      <FlashMessage shouldShow={ shouldShow } message="Client added" />
-      <ClientList displayClients={ displayClients } dispatch={ dispatch } />
-      <hr />
-      <div className="add-client-container">
-        <h2>Add a new client</h2>
-        <label htmlFor="name">Name: </label>
-        <input name="name" type="text" onChange={ handleNameChange } value={ name }/>
-        <label htmlFor="surname">Surname: </label>
-        <input name="surname" type="text" onChange={ handleSurnameChange } value={ surname } />
-        <button onClick={ handleClick }>Add</button>
+      <div className="cards">
+        { displayClients.map((client: Client) => (
+          <ClientItem key={ client.id } client={ client } dispatch={ dispatch } />
+        )) }
       </div>
       <hr />
-      <p>Number of clients of the list: { numberOfClients }</p>
-      <Link
-        className="App-link"
-        to="/"
-      >
-        Go back home
-      </Link>
+      <p className="footer">Number of clients in the list: { clients.length }</p>
     </div>
   )
 }
@@ -138,17 +86,70 @@ const FilterComponent = styled.div`
   align-items: center;
   justify-content: space-between;
   border: 1px solid black;
-  padding: 10px;
+  border-radius: 15px;
+  padding: 5px 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 `
 
 export default styled(List)`
-  .add-client-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  padding: 20px;
 
-    button {
-      margin-top: 10px;
-    }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-gap: 20px;
+  }
+
+  .card {
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 10fr 1fr;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .add-button {
+    background-color: rgb(173, 216, 230);
+    border: none;
+    border-radius: 50%;
+    padding: 3px 11px;
+    color: white;
+    text-align: center;
+    display: inline-block;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .add-button:hover {
+    background-color: rgb(89, 173, 201);
+  }
+
+  .delete-button {
+    background-color: rgb(255, 99, 71);
+    border: none;
+    border-radius: 50%;
+    padding: 4px 8px;
+    color: white;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .delete-button:hover {
+    background-color: rgb(255, 0, 0);
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
   }
 `
