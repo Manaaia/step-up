@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import { useSelector, useDispatch } from "react-redux"
 import { deleteClient } from "../slice"
+import { Filter } from "../../../ui/Filter"
 
 type Client = {
   id: number
@@ -28,7 +29,6 @@ const ClientItem: React.FC<{ client: Client, dispatch: any }> = ({ client, dispa
 const List = ({ ...restProps }) => {
   const clients = useSelector((state: any) => state.clients)
   const dispatch = useDispatch()
-  const [isOpen, setIsOpen] = useState(false)
   const [displayClients, setDisplayClients] = useState(clients)
   const [filter, setFilter] = useState('')
 
@@ -43,33 +43,14 @@ const List = ({ ...restProps }) => {
     } ))
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter(e.target.value)
-  }
-
-  const handleFilterClick = () => {
-    filterClients(clients, filter)
-  }
-
   return (
     <div { ...restProps }>
-      <Link className="App-link" to="/">Go back home</Link>
+      <Link className="App-link" to="/"><button title="back" className="back-button">&#60;</button></Link>
       <div className="header">
         <h1>Client list</h1>
         <Link className="App-link" to='add'><button title="Add a new client" className="add-button">+</button></Link>
       </div>
-      <FilterComponent key="component">
-        <div>
-          <p>Filter</p>
-          { isOpen &&
-            <div>
-              <input type="text" onChange={ handleChange } value={ filter } />
-              <button onClick={ handleFilterClick }>Filter</button>
-            </div>
-          }
-        </div>
-        <button onClick={ () => setIsOpen(!isOpen) }>Toggle Filter</button>
-      </FilterComponent>
+      <Filter filterValue={ filter } setFilterValue={ setFilter } listToFilter={ clients } filter={ filterClients } />
       <div className="cards">
         { displayClients.map((client: Client) => (
           <ClientItem key={ client.id } client={ client } dispatch={ dispatch } />
@@ -80,17 +61,6 @@ const List = ({ ...restProps }) => {
     </div>
   )
 }
-
-const FilterComponent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid black;
-  border-radius: 15px;
-  padding: 5px 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
-`
 
 export default styled(List)`
   padding: 20px;
@@ -146,6 +116,23 @@ export default styled(List)`
 
   .delete-button:hover {
     background-color: rgb(255, 0, 0);
+  }
+
+  .back-button {
+    background-color: rgb(173, 216, 230);
+    border: none;
+    border-radius: 50%;
+    padding: 4px 9px;
+    color: white;
+    text-align: center;
+    display: inline-block;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .back-button:hover {
+    background-color: rgb(89, 173, 201);
   }
 
   .footer {
