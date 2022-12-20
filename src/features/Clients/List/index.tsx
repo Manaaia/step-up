@@ -22,6 +22,9 @@ const ClientItem: React.FC<{ client: Client, dispatch: any }> = ({ client, dispa
       >
         x
       </button>
+      <Link className="App-link" to={ `/clients/${ client.id }` }>
+        <button title="Edit" className="edit-button">Edit</button>
+      </Link>
     </article>
   )
 }
