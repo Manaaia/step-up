@@ -1,34 +1,100 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createEntityAdapter, EntityId, Dictionary, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { getClients, addClient } from "../../services/api";
+import { Entities, RootState, Selector } from "../../store";
+import { Client } from "./type";
 
-const initialState = [
-  { "id": 1, "name": "Leelou", "surname": "Dallas" },
-  { "id": 2, "name": "Bruce", "surname": "Willis" },
-  { "id": 3, "name": "Korben", "surname": "Dallas" }
-]
+// export enum FetchStatus {
+//   Fetching = 'Fetching',
+//   Success = 'Success',
+//   Failure = 'Failure',
+// }
+
+// interface ClientRootState {
+//   status: FetchStatus,
+//   ids: EntityId[],
+//   entities: Dictionary<Client>,
+// }
+
+// const clientAdapter = createEntityAdapter<Client>()
+
+// export const initialState: ClientRootState = clientAdapter.getInitialState({
+//   status: FetchStatus.Fetching,
+// })
+
+type ClientStateProps = {
+  clients: Client[]
+  status: string
+  error: string | null | undefined
+}
+
+const initialState: ClientStateProps = {
+  clients: [],
+  status: 'idle',
+  error: null
+}
+
+export const fetchClients = createAsyncThunk('clients/fetchClients', async () => {
+  const response = await getClients()
+  return response
+})
+
+export const addNewClient = createAsyncThunk('clients/addNewClient', async (initialClient: Client) => {
+    const response = await addClient(initialClient)
+    return response
+  }
+)
 
 const clientSlice = createSlice({
   name: 'clients',
   initialState,
   reducers: {
-    addClient(state, action) {
-      state.push(action.payload)
-    },
     deleteClient(state, action) {
-      state = state.filter(client => client.id !== action.payload)
+      state.clients = state.clients.filter(client => client.id !== action.payload)
       return state
     },
     updateClient(state, action) {
-      state = state.map(client => {
-        if (client.id === action.payload.id) {
-          return action.payload
-        }
-        return client
-      })
-      return state
+      const existingClient = state.clients.find(client => client.id === action.payload.id)
+      if (existingClient) {
+        existingClient.name = action.payload.name
+      }
     }
+  },
+  extraReducers(builder) {
+    builder
+      .addCase(fetchClients.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchClients.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.clients = state.clients.concat(action.payload)
+      })
+      .addCase(fetchClients.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message
+      })
+      .addCase(addNewClient.fulfilled, (state, action: any) => {
+        state.clients.push(action.payload)
+        state.status = 'idle'
+      })
   }
 })
 
-export const { addClient, deleteClient, updateClient } = clientSlice.actions
+export const { deleteClient, updateClient } = clientSlice.actions
 
 export default clientSlice.reducer
+
+export const selectAllClients = (state: RootState) => state.clients.clients
+
+export const selectClientById = (state: RootState, clientId: number) =>
+  state.clients.clients.find(client => client.id === clientId)
+
+  // export const {
+  //   selectAll: selectAllClients,
+  //   selectById: selectClientById,
+  // } = clientAdapter.getSelectors<RootState>(state => state.clients)
+
+  // export const selectIsFetching: Selector<boolean> = state => state.clients.status === FetchStatus.Fetching
+
+  // export const selectHasError: Selector<boolean> = state => state.clients.status === FetchStatus.Failure
+
+  // export default slice

@@ -1,48 +1,57 @@
 import styled from "styled-components"
 import React, { useState } from "react"
-import { useSelector, useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import FlashMessage from "../../../ui/FlashMessage"
-import { addClient } from "../slice"
+import { addNewClient, selectAllClients } from "../slice"
 import { Link, useNavigate } from "react-router-dom"
+import { RootState } from "../../../store"
 
 const AddClient = ({ ...restProps }) => {
-  const clients = useSelector((state: any) => state.clients)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch()<any>
+  const clients = useSelector(selectAllClients)
   const [name, setName] = useState('')
-  const [surname, setSurname] = useState('')
   const [shouldShow, setShouldShow] = useState(false)
   const navigateToClients = useNavigate()
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
+
+  const canSave =
+  [name].every(Boolean) && addRequestStatus === 'idle'
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
   }
 
-  const handleSurnameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSurname(e.target.value)
-  }
-
   const reinitializeForm = () => {
     setName('')
-    setSurname('')
   }
 
-  const handleClick = () => {
-    dispatch(
-      addClient({
-        id: clients.length + 1,
-        name: name,
-        surname: surname
-      })
-    )
+  const handleClick = async () => {
+    if (canSave) {
+      try {
+        setAddRequestStatus('pending')
 
-    reinitializeForm()
+        await dispatch(
+          addNewClient({
+            id: clients.length + 1,
+            name: name,
+          })
+        ).unwrap()
 
-    setShouldShow(true)
+        reinitializeForm()
 
-    setTimeout(() => {
-      setShouldShow(false)
-      navigateToClients('/clients')
-    }, 2000)
+        setShouldShow(true)
+
+        setTimeout(() => {
+          setShouldShow(false)
+          setAddRequestStatus('idle')
+          // navigateToClients('/clients')
+        }, 2000)
+      } catch (err) {
+        console.error('Failed to save the client: ', err)
+      } finally {
+        setAddRequestStatus('idle')
+      }
+    }
   }
 
   return (
@@ -52,8 +61,6 @@ const AddClient = ({ ...restProps }) => {
         <h2>Add a new client</h2>
         <label htmlFor="name">Name: </label>
         <input name="name" type="text" onChange={ handleNameChange } value={ name }/>
-        <label htmlFor="surname">Surname: </label>
-        <input name="surname" type="text" onChange={ handleSurnameChange } value={ surname } />
         <button onClick={ handleClick }>Add</button>
         <Link to="/clients"><button>Back</button></Link>
       </div>

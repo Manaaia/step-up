@@ -1,17 +1,30 @@
 import FlashMessage from "../../../ui/FlashMessage"
 import { useSelector, useDispatch } from "react-redux"
-import { updateClient } from "../slice"
+import { selectClientById, updateClient } from "../slice"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import React, { useState } from "react"
 import styled from "styled-components"
+import { RootState } from "../../../store"
+import { Client as ClientType } from "../type"
 
-const Client = ({ ...restProps }) => {
-  const clients = useSelector((state: any) => state.clients)
-  const dispatch = useDispatch()
+
+const Client = () => {
   const { clientId } = useParams()
-  const client = clients.find((client: any) => client.id === Number(clientId))
+  const client: ClientType | undefined = useSelector((state: RootState) => selectClientById(state, Number(clientId)))
+  if (!client) return (<div>Client not found</div>)
+
+  return (
+    <ClientForm client={ client } />
+  )
+}
+
+type ClientFormProps = {
+  client: ClientType
+}
+
+const ClientForm:React.FC<ClientFormProps> = ({ client, ...restProps }) => {
+  const dispatch = useDispatch()
   const [name, setName] = useState(client.name)
-  const [surname, setSurname] = useState(client.surname)
   const [shouldShow, setShouldShow] = useState(false)
   const navigateToClients = useNavigate()
 
@@ -19,13 +32,8 @@ const Client = ({ ...restProps }) => {
     setName(e.target.value)
   }
 
-  const handleSurnameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSurname(e.target.value)
-  }
-
   const reinitializeForm = () => {
     setName('')
-    setSurname('')
   }
 
   const handleClick = () => {
@@ -33,7 +41,6 @@ const Client = ({ ...restProps }) => {
       updateClient({
         id: client.id,
         name: name,
-        surname: surname
       })
     )
 
@@ -55,8 +62,6 @@ const Client = ({ ...restProps }) => {
         <h2>Update client</h2>
         <label htmlFor="name">Name: </label>
         <input name="name" type="text" onChange={ handleNameChange } value={ name }/>
-        <label htmlFor="surname">Surname: </label>
-        <input name="surname" type="text" onChange={ handleSurnameChange } value={ surname } />
         <button onClick={ handleClick }>Update</button>
         <Link to="/clients"><button>Back</button></Link>
       </div>

@@ -2,19 +2,15 @@ import { Link } from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import { useSelector, useDispatch } from "react-redux"
-import { deleteClient } from "../slice"
+import { deleteClient, selectAllClients, fetchClients } from "../slice"
 import { Filter } from "../../../ui/Filter"
-
-type Client = {
-  id: number
-  name: string
-  surname: string
-}
+import { Client } from "../type"
+import { RootState } from "../../../store"
 
 const ClientItem: React.FC<{ client: Client, dispatch: any }> = ({ client, dispatch }) => {
   return (
     <article className="card" key={ client.id }>
-      <header>{ client.name } { client.surname }</header>
+      <header>{ client.name }</header>
       <button
         title="Delete"
         className="delete-button"
@@ -30,10 +26,18 @@ const ClientItem: React.FC<{ client: Client, dispatch: any }> = ({ client, dispa
 }
 
 const List = ({ ...restProps }) => {
-  const clients = useSelector((state: any) => state.clients)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch()<any>
+  const clients = useSelector(selectAllClients)
+  const clientStatus = useSelector((state: RootState) => state.clients.status)
+  const error = useSelector((state: RootState) => state.clients.error)
   const [displayClients, setDisplayClients] = useState(clients)
   const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    if (clientStatus === 'idle') {
+      dispatch(fetchClients())
+    }
+  }, [clientStatus, dispatch])
 
   useEffect(() => {
     setDisplayClients(clients)
@@ -42,15 +46,18 @@ const List = ({ ...restProps }) => {
 
   const filterClients = (clients: Client[], filter: string) => {
     setDisplayClients(clients.filter((client: Client) => {
-      return client.name.includes(filter) || client.surname.includes(filter) || `${ client.name } ${ client.surname }`.includes(filter)
+      return client.name.includes(filter)
     } ))
   }
 
-  return (
-    <div { ...restProps }>
-      <Link className="App-link" to="/"><button title="back" className="back-button">&#60;</button></Link>
+  let content
+
+  if (clientStatus === 'loading') {
+    content = <div className="loader">Loading...</div>
+  } else if (clientStatus === 'succeeded') {
+    content =
+    <>
       <div className="header">
-        <h1>Client list</h1>
         <Link className="App-link" to='add'><button title="Add a new client" className="add-button">+</button></Link>
       </div>
       <Filter filterValue={ filter } setFilterValue={ setFilter } listToFilter={ clients } filter={ filterClients } />
@@ -61,12 +68,26 @@ const List = ({ ...restProps }) => {
       </div>
       <hr />
       <p className="footer">Number of clients in the list: { clients.length }</p>
+    </>
+  } else if (clientStatus === 'failed') {
+    content = <div>{ error }</div>
+  }
+
+  return (
+    <div { ...restProps }>
+      <Link className="App-link" to="/"><button title="back" className="back-button">&#60;</button></Link>
+      <h1>Client list</h1>
+      { content }
     </div>
   )
 }
 
 export default styled(List)`
   padding: 20px;
+
+  h1 {
+    text-align: center;
+  }
 
   .cards {
     display: grid;
@@ -85,7 +106,7 @@ export default styled(List)`
   .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
   .add-button {
@@ -99,6 +120,7 @@ export default styled(List)`
     font-size: 32px;
     font-weight: bold;
     cursor: pointer;
+    margin: 0 0 10px;
   }
 
   .add-button:hover {
